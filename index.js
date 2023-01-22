@@ -1,6 +1,7 @@
 //! INDISPENSABLES
 //? Vérifier si indispensables
 const express = require("express"); //!
+const cors = require("cors");
 const mongoose = require("mongoose"); //!
 require("dotenv").config();
 
@@ -8,7 +9,7 @@ const fileUpload = require("express-fileupload"); //?
 
 const app = express(); //!
 app.use(express.json()); //!
-
+app.use(cors());
 mongoose.set("strictQuery", false);
 mongoose.connect(process.env.MONGODB_URI); //!
 
