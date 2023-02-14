@@ -28,15 +28,17 @@ cloudinary.config({
 //! Import de mes routes
 const userRoutes = require("./routes/user");
 const offerRoutes = require("./routes/offer");
+const paymentRoutes = require("./routes/payment");
 
 //! Exécution de mes routes
 app.use(userRoutes);
 app.use(offerRoutes);
+app.use(paymentRoutes);
 
 app.all("*", (req, res) => {
   res.status(404).json({ message: "This route doesn't exist" });
 });
 
-app.listen(process.env.PORT | 4000, () => {
+app.listen(4000, () => {
   console.log("Server has started 🚀 ");
 });
