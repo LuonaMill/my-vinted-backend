@@ -9,8 +9,9 @@ const fileUpload = require("express-fileupload");
 const convertToBase64 = require("../utils/convertToBase64");
 const cloudinary = require("cloudinary").v2; //!
 
-//! J'importe mon modèle User
+//! J'importe mes modèles User et Offer
 const User = require("../models/User"); //!
+const Offer = require("../models/Offer");
 
 //! ROUTE #1 Je crée une route signup en POST pour :
 // -> recevoir les informations de mon user depuis ma requête en body
@@ -69,7 +70,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
       _id: newUser._id,
       token: newUser.token,
       account: newUser.account,
-      avatar: newUser.avatarResult,
+      // avatar: newUser.avatarResult,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -117,8 +118,12 @@ router.post("/user/login", async (req, res) => {
 router.get("/user/:userId", async (req, res) => {
   const userId = req.params.userId;
   try {
-    const response = await User.findById(userId).populate("offers");
-    res.status(200).json(response);
+    const userInfos = await User.findById(userId).populate("offers");
+    const offersCounter = await Offer.countDocuments({
+      owner: { _id: userId },
+    });
+
+    res.status(200).json({ counter: offersCounter, user: userInfos });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

@@ -10,10 +10,12 @@ const User = mongoose.model("User", {
   token: String,
   hash: String,
   salt: String,
-  offers: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Offer",
-  },
+  offers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Offer",
+    },
+  ],
 });
 
 module.exports = User;

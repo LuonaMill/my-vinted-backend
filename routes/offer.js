@@ -51,10 +51,10 @@ router.post(
       await newOffer.save();
       const userId = newOffer.owner._id;
       const offerId = newOffer._id;
-      const addOfferInUser = await User.findOneAndUpdate(
-        { _id: userId },
-        { offers: offerId }
-      );
+      // const addOfferInUser = await User.findOneAndUpdate(
+      //   { _id: userId },
+      //   { offers: offerId }
+      // );
 
       res.json(newOffer);
     } catch (error) {
