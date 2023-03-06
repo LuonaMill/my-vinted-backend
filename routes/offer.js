@@ -4,6 +4,7 @@ const fileUpload = require("express-fileupload"); //! le package express-fileupl
 const convertToBase64 = require("../utils/convertToBase64");
 const cloudinary = require("cloudinary").v2; //!
 const Offer = require("../models/Offer"); //!
+const User = require("../models/User");
 const isAuthenticated = require("../middlewares/isAuthenticated"); //!
 
 //! ROUTE#1 Je crée une route publish en POST pour publier une annonce :
@@ -44,11 +45,17 @@ router.post(
           { EMPLACEMENT: city },
         ],
         product_image: resultPicture,
-        // owner:req.user._id
         owner: req.user, //* avec mongoose, en requêtant toutes les infos de mon user, je stocke QUE L'ID dans Mongo
       });
       await newOffer.populate("owner");
       await newOffer.save();
+      const userId = newOffer.owner._id;
+      const offerId = newOffer._id;
+      const addOfferInUser = await User.findOneAndUpdate(
+        { _id: userId },
+        { offers: offerId }
+      );
+
       res.json(newOffer);
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -95,7 +102,7 @@ router.get("/offers", async (req, res) => {
     }
 
     //* ON S'OCCUPE ENSUITE DES PAGES (nombre d'offres par page, skip, numéro)
-    const limit = 2;
+    const limit = 10;
     let pageRequired = 1;
     if (page) pageRequired = Number(page); // on vérifie si on a une page en query, et auquel cas on transforme son numéro en nombre
 
@@ -106,8 +113,12 @@ router.get("/offers", async (req, res) => {
       .sort(sortedMethod)
       .skip(skipped)
       .limit(limit)
-      .populate("owner", "account")
-      .select("product_name product_price");
+      .populate({
+        path: "owner",
+        select: "account",
+      });
+    // select A utiliser si on veut une réponse au client plus condensée
+    // .select("product_name product_price");
 
     //* ET ON CREE UNE VARIABLE POUR CALCULER LE NOMBRE TOTAL D'OFFRES QUI REPONDENT A NOS CRITERES DE RECHERCHE
     const numberOfOffers = await Offer.countDocuments(filters);
@@ -117,6 +128,33 @@ router.get("/offers", async (req, res) => {
       offers: resultFiltersSorted,
     };
     res.json(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+//! ROUTE#3 Je crée une route offer/:offerId en GET pour récupérer les infos d'une offre avec son offerId
+
+router.get("/offer/:offerId", async (req, res) => {
+  const offerId = req.params.offerId;
+  try {
+    const response = await Offer.findById(offerId);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+//! ROUTE#4 Je crée une route offer/:userId en GET pour récupérer les offres avec un userId
+
+router.get("/offer/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const offersByUserId = await Offer.find({
+      owner: { _id: "64035eb6ebdec33cbb7388e2" },
+    });
+
+    res.status(200).json(offersByUserId);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

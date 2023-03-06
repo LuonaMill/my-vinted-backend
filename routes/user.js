@@ -110,6 +110,20 @@ router.post("/user/login", async (req, res) => {
   }
 });
 
+//! ROUTE #3 Je crée une route user/:userId en GET pour
+// 1) récupérer les infos de mon user
+// 2) récupérer le nombre d'annonces associé à son id
+
+router.get("/user/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const response = await User.findById(userId).populate("offers");
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 //! J'indique que mes routes sont exportables
 module.exports = router; //!
 
