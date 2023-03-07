@@ -8,12 +8,12 @@ const User = require("../models/User");
 const isAuthenticated = require("../middlewares/isAuthenticated"); //!
 
 //! ROUTE#1 Je crée une route publish en POST pour publier une annonce :
-//* Contraintes :
-//* -> authentifier mon utilisateur avant toute chose (appeler middleware isAuthenticated dans router.post) grâce à son token
-//* -> recevoir les informations de mon offre (newOffer = new Offer({}))
-//* -> parmi les infos : une image à uploader dans cloudinary
-//TODO -> stocker mon offre dans MongoDb    await newOffer.save() en pensant bien à mettre l'urlsecure de mon image (ou tout l'objet))
-// -> renvoyer au client un objet de plein d'infos, //TODO dont .populate("owner")
+//* TO DO :
+// -> authentifier mon utilisateur avant toute chose (appeler middleware isAuthenticated dans router.post) grâce à son token
+// -> recevoir les informations de mon offre (newOffer = new Offer({}))
+//-> parmi les infos obligatoires : une image à uploader dans cloudinary
+//-> stocker mon offre dans MongoDb    await newOffer.save() en pensant bien à mettre l'urlsecure de mon image (ou tout l'objet))
+// -> renvoyer au client un objet de plein d'infos, dont .populate("owner")
 
 router.post(
   "/offer/publish",
@@ -26,39 +26,174 @@ router.post(
         req.body;
 
       //* Pour uploader une image
+      if (title && price && req.files?.picture) {
+        //* Je crée ma nouvelle offre sans image
 
-      const picture = req.files.picture; // je récupère mon image picture depuis body form-data
-      const pictureToUpload = convertToBase64(picture); // je convertis le buffer de ma picture en base64 grâce à ma fonction convertToBase64(file)
-      const resultPicture = await cloudinary.uploader.upload(pictureToUpload); //j'utilise l'uploader de cloudinary pour upload ma picture qui est désormais prête
+        const newOffer = new Offer({
+          product_name: title,
+          product_description: description,
+          product_price: price,
+          product_details: [
+            { MARQUE: brand },
+            { TAILLE: size },
+            { ÉTAT: condition },
+            { COULEUR: color },
+            { EMPLACEMENT: city },
+          ],
+          owner: req.user, //* avec mongoose, en requêtant toutes les infos de mon user, je stocke QUE L'ID dans Mongo
+        });
 
-      //* Pour créer ma nouvelle offer
+        //* CAS #1 : On ne reçoit qu'une image (req.files.picture n'est donc pas un tableau)
 
-      const newOffer = new Offer({
-        product_name: title,
-        product_description: description,
-        product_price: price,
-        product_details: [
-          { MARQUE: brand },
-          { TAILLE: size },
-          { ÉTAT: condition },
-          { COULEUR: color },
-          { EMPLACEMENT: city },
-        ],
-        product_image: resultPicture,
-        owner: req.user, //* avec mongoose, en requêtant toutes les infos de mon user, je stocke QUE L'ID dans Mongo
-      });
-      await newOffer.populate("owner");
-      await newOffer.save();
-      const userId = newOffer.owner._id;
-      const offerId = newOffer._id;
-      // const addOfferInUser = await User.findOneAndUpdate(
-      //   { _id: userId },
-      //   { offers: offerId }
-      // );
+        if (!Array.isArray(req.files.picture)) {
+          // On vérifie qu'on a bien affaire à une image
+          if (req.files.picture.mimetype.slice(0, 5) !== "image") {
+            return res.status(400).json({ message: "You must send images" });
+          }
+          // Envoi de l'image à cloudinary
+          const result = await cloudinary.uploader.upload(
+            convertToBase64(req.files.picture),
+            {
+              folder: `api/laurinevinted/offers/${newOffer._id}`,
+              public_id: "preview",
+            }
+          );
+          // ajout de l'image dans newOffer
+          newOffer.product_image = result;
+          newOffer.product_pictures.push(result);
+        }
 
-      res.json(newOffer);
+        //* CAS #2 : on reçoit un tableau d'image => voir route offer/publisher ci-dessous (en construction)
+
+        //* Là, on sauvegarde notre nouvelle offre
+        await newOffer.populate("owner");
+        await newOffer.save();
+        res.json(newOffer);
+      } else {
+        res
+          .status(400)
+          .json({ message: "title, price and picture are required" });
+      }
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
+    }
+  }
+);
+
+//! TEST DE ROUTE DIFFERENTE POUR ENVOI D'IMAGES MULTIPLE
+//TODO (WORK IN PROGRESS)
+
+router.post(
+  "/offer/publisher",
+  isAuthenticated,
+  fileUpload(),
+  async (req, res) => {
+    // fileUpload() : Premier middleware qui sera appliqué, dans cette route, avant la fonction.
+    try {
+      const {
+        title,
+        description,
+        price,
+        condition,
+        city,
+        brand,
+        size,
+        color,
+        picture,
+      } = req.body;
+      console.log(req);
+      //* Pour uploader une image
+      if (title && price && req.files?.picture) {
+        //* Je crée ma nouvelle offre sans image
+
+        const newOffer = new Offer({
+          product_name: title,
+          product_description: description,
+          product_price: price,
+          product_details: [
+            { MARQUE: brand },
+            { TAILLE: size },
+            { ÉTAT: condition },
+            { COULEUR: color },
+            { EMPLACEMENT: city },
+          ],
+          // product_image: req.files.picture.,
+          owner: req.user, //* avec mongoose, en requêtant toutes les infos de mon user, je stocke QUE L'ID dans Mongo
+        });
+
+        // Si on ne reçoit qu'une image (req.files.picture n'est donc pas un tableau)
+        if (!Array.isArray(req.files.picture)) {
+          // On vérifie qu'on a bien affaire à une image
+          if (req.files.picture.mimetype.slice(0, 5) !== "image") {
+            return res.status(400).json({ message: "You must send images" });
+          }
+          // Envoi de l'image à cloudinary
+          const result = await cloudinary.uploader.upload(
+            convertToBase64(req.files.picture),
+            {
+              folder: `api/laurinevinted/offers/${newOffer._id}`,
+              public_id: "preview",
+            }
+          );
+          // ajout de l'image dans newOffer
+          newOffer.product_image = result;
+          newOffer.product_pictures.push(result);
+        }
+
+        // //* Je boucle sur mon tableau d'image
+        // for (let i = 0; i < req.files.picture.length; i++) {
+        //   const picture = req.files.picture[i];
+        //   if (picture.mimetype.slice(0, 5) !== "image") {
+        //     return res.status(400).json({ message: "You must send images" });
+        //   }
+
+        //   //* On envoie la première image à cloudinary et on en fait l'image principale (product_image)
+        //   if (i === 0) {
+        //     // je convertis le buffer de ma picture en base64 grâce à ma fonction convertToBase64(file)
+        //     const firstPictureToUpload = convertToBase64(picture);
+        //     //j'utilise l'uploader de cloudinary pour upload ma picture qui est désormais prête
+        //     const resultPicture = await cloudinary.uploader.upload(
+        //       firstPictureToUpload,
+        //       {
+        //         folder: `api/vinted/offers/${newOffer._id}`,
+        //         public_id: "preview",
+        //       }
+        //     );
+        //     // ajout de l'image dans newOffer
+        //     newOffer.product_image = resultPicture;
+        //     newOffer.product_pictures.push(resultPicture);
+        //   } else {
+        //     //* On envoie toutes les autres à cloudinary et on met les résultats dans product_pictures
+        //     const morePicturesToUpload = convertToBase64(picture);
+        //     const resultPictures = await cloudinary.uploader.upload(
+        //       morePicturesToUpload,
+        //       {
+        //         folder: `api/vinted/offers/${newOffer._id}`,
+        //       }
+        //     );
+        //     newOffer.product_pictures.push(resultPictures);
+        //   }
+        // }
+
+        await newOffer.populate("owner");
+        await newOffer.save();
+
+        //Vu avec Gwendoline : pas nécessaire pour chaque offre, mais pour favoris oui - je garde ça là en attendant
+        // const userId = newOffer.owner._id;
+        // const offerId = newOffer._id;
+        // const addOfferInUser = await User.findOneAndUpdate(
+        //   { _id: userId },
+        //   { offers: offerId }
+        // );
+
+        res.json(newOffer);
+      } else {
+        res
+          .status(400)
+          .json({ message: "title, price and picture are required" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: error.message });
     }
   }
 );

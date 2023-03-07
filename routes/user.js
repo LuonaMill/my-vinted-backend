@@ -24,25 +24,23 @@ const Offer = require("../models/Offer");
 
 router.post("/user/signup", fileUpload(), async (req, res) => {
   const { username, email, password, newsletter } = req.body; // je destructure les infos de mon body
+  console.log(req);
   try {
     //* Je veux vérifier que tous mes champs sont renseignés avant d'aller + loin :
-    if (!username || !email || !password || typeof newsletter !== "boolean") {
+    if (!username || !email || !password) {
       return res.status(400).json({ message: "missing parameter" });
     }
 
     //* Je veux renvoyer une erreur si l'email existe déjà dans la bdd
-    // je dois faire une recherche findOne
-    const existingEmail = await User.findOne({ email: email });
-    if (existingEmail) {
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
       return res.status(409).json({
-        //409 correspond aux erreurs "conflict"
         message: "There is already an account linked to this email",
       });
     }
 
     //* Si mes 2 conditions ont été vérifiées, je crée mon hash
 
-    const userPassword = password;
     const salt = uid2(16);
     const hash = SHA256(salt + password).toString(encBase64);
     const token = uid2(64);
@@ -62,6 +60,15 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
       //TODO avatar: { avatar: avatarResult },
     });
 
+    if (req.files?.avatar) {
+      const newAvatar = convertToBase64(req.files.avatar);
+      const result = await cloudinary.uploader.upload(newAvatar, {
+        folder: `vinted/users/${newUser._id}`,
+        public_id: "avatar",
+      });
+      newUser.account.avatar = result;
+    }
+    console.log(newUser.account.avatar);
     //* je le sauvegarde en base
     await newUser.save();
 
@@ -92,7 +99,7 @@ router.post("/user/login", async (req, res) => {
         message: "Unauthorized",
       });
     }
-    // console.log(existingEmail);
+    // console.log(existingUser);
     const newHash = SHA256(alreadyUser.salt + password).toString(encBase64);
 
     if (alreadyUser.hash === newHash) {
