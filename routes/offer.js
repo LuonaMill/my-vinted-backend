@@ -208,7 +208,7 @@ router.get("/offers", async (req, res) => {
     // title=pull&priceMax=200&priceMin=20&sort=price-asc&page=3
 
     // On destructure les valeurs en query
-    const { title, page, priceMax, priceMin, sort } = req.query;
+    const { title, page, priceMax, priceMin, sort, limit } = req.query;
     //* ON S'OCCUPE DES FILTRES
     //*Ci-dessous, on crée une variable filters {} qui sera ensuite utilisé dans find(),et qui va accueillir les infos en fonction de l'existence de ces infos (càd product name, priceMin, priceMax). L'utilité de cette variable filter est d'agrémenter un objet avec des infos quand elles sont données dans le query, et de ne pas être bloqué en cas de zéro info puisque filters resterait un objet vide
     const filters = {};
@@ -237,7 +237,7 @@ router.get("/offers", async (req, res) => {
     }
 
     //* ON S'OCCUPE ENSUITE DES PAGES (nombre d'offres par page, skip, numéro)
-    const limit = 10;
+
     let pageRequired = 1;
     if (page) pageRequired = Number(page); // on vérifie si on a une page en query, et auquel cas on transforme son numéro en nombre
 
