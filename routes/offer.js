@@ -240,7 +240,7 @@ router.get("/offers", async (req, res) => {
 
     let pageRequired = 1;
     if (page) pageRequired = Number(page); // on vérifie si on a une page en query, et auquel cas on transforme son numéro en nombre
-
+    if (limit) limitRequired = Number(limit);
     const skipped = limit * (pageRequired - 1);
 
     //* ENFIN, ON CHAINE TOUTES NOS METHODES FITLRES ET TRI

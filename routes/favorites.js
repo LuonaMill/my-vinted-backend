@@ -8,21 +8,10 @@ const User = require("../models/User");
 
 //* Route pour créer un favori avec ses infos + le token de rattachement
 
-router.post("/favorites/:userId", async (req, res) => {
-  // Je destructure les infos venant du client
-  const { token, product_name, offerId } = req.body;
+router.put("/favorites/:userId", async (req, res) => {
+  const { offerId, userId } = req.body;
   try {
-    const newFavorite = new Favorite({
-      token: token,
-      product_name: product_name,
-      offer_id: offerId,
-    });
-    await newFavorite.save();
-    res.status(200).json({
-      _id: newFavorite._id,
-      token: newFavorite.token,
-      product_name: newFavorite.product_name,
-    });
+    const addFavoriteToUser = await User.findByIdAndUpdate(userId);
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ message: error.message });
@@ -30,13 +19,14 @@ router.post("/favorites/:userId", async (req, res) => {
 });
 
 //* Route pour récupérer les favoris rattachés à un user identifié par son token
+//! Je pense que cette route sera inutile car je pourrai récup les infos directement via la route /user/:userId
 
 router.get("/favorites/:userId", async (req, res) => {
-  const token = req.params.userId;
   try {
-    const favorite = await Favorite.find({ token: token });
-    res.json(favorite);
-    console.log(favorite);
+    const user = await User.findById({ _id: req.params.userId });
+    const userFavs = user.favorites;
+    res.json(user.favorites); // l'objectif
+    console.log(user.favorites);
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ message: error.message });

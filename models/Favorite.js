@@ -1,3 +1,5 @@
+//! Je ne pense pas m'en servir
+
 const mongoose = require("mongoose");
 
 const Favorite = mongoose.model("Favorite", {
