@@ -11,7 +11,16 @@ const User = require("../models/User");
 router.put("/favorites/:userId", async (req, res) => {
   const { offerId, userId } = req.body;
   try {
-    const addFavoriteToUser = await User.findByIdAndUpdate(userId);
+    const addFavoriteToUser = await User.findByIdAndUpdate(
+      userId,
+      { $push: { favorites: offerId } },
+      { new: true }
+    );
+    if (addFavoriteToUser) {
+      res
+        .status(200)
+        .json({ message: `${offerId} has been added to your favs` });
+    }
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ message: error.message });
