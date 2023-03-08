@@ -10,6 +10,12 @@ const User = mongoose.model("User", {
   token: String,
   hash: String,
   salt: String,
+  offers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Offer",
+    },
+  ],
   favorites: [
     {
       type: mongoose.Schema.Types.ObjectId,
