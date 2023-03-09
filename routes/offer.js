@@ -248,10 +248,7 @@ router.get("/offers", async (req, res) => {
       .sort(sortedMethod)
       .skip(skipped)
       .limit(limit)
-      .populate({
-        path: "owner",
-        select: "account favorites",
-      });
+      .populate("owner");
     // select A utiliser si on veut une réponse au client plus condensée
     // .select("product_name product_price");
 
