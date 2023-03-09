@@ -32,10 +32,10 @@ router.put("/favorites/:userId", async (req, res) => {
 
 router.get("/favorites/:userId", async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.params.userId });
+    const user = await User.findById(req.params.userId).populate("favorites");
     const userFavs = user.favorites;
-    res.json(user.favorites); // l'objectif
-    console.log(user.favorites);
+    res.json(userFavs); // l'objectif
+    console.log(userFavs);
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ message: error.message });
