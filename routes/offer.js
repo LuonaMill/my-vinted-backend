@@ -250,7 +250,7 @@ router.get("/offers", async (req, res) => {
       .limit(limit)
       .populate({
         path: "owner",
-        select: "account",
+        select: "account favorites",
       });
     // select A utiliser si on veut une réponse au client plus condensée
     // .select("product_name product_price");
@@ -275,7 +275,7 @@ router.get("/offer/:offerId", async (req, res) => {
   try {
     const response = await Offer.findById(offerId).populate({
       path: "owner",
-      select: "account",
+      select: "account favorites",
     });
     res.status(200).json(response);
   } catch (error) {
