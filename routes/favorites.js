@@ -29,9 +29,7 @@ router.put("/favorites/:userId", async (req, res) => {
       { new: true }
     );
     if (addFavoriteToUser) {
-      res
-        .status(200)
-        .json({ message: `${offerId} has been added to your favs` });
+      res.status(200).json(addFavoriteToUser);
     }
   } catch (error) {
     console.log(error.message);
@@ -50,7 +48,7 @@ router.delete("/favorites/:userId", async (req, res) => {
       { new: true }
     );
     if (deleteFavoriteFromUser) {
-      res.status(200).json({ message: `${offerId} is no longer in your favs` });
+      res.status(200).json(deleteFavoriteFromUser);
     }
   } catch (error) {
     console.log(error.message);
