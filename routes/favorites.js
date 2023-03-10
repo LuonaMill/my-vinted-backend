@@ -3,6 +3,7 @@ const router = express.Router();
 
 const Favorite = require("../models/Favorite");
 const User = require("../models/User");
+const Offer = require("../models/Offer");
 
 //! Route pour récupérer les favoris rattachés à un user identifié par son token
 
@@ -28,8 +29,13 @@ router.put("/favorites/:userId", async (req, res) => {
       { $push: { favorites: offerId } },
       { new: true }
     );
-    if (addFavoriteToUser) {
-      res.status(200).json(addFavoriteToUser);
+    const addLikersToOffer = await Offer.findByIdAndUpdate(
+      offerId,
+      { $push: { likers: userId } },
+      { new: true }
+    );
+    if (addFavoriteToUser && addLikersToOffer) {
+      res.status(200).json("Favori bien ajouté");
     }
   } catch (error) {
     console.log(error.message);
@@ -47,8 +53,13 @@ router.delete("/favorites/:userId", async (req, res) => {
       { $pull: { favorites: offerId } },
       { new: true }
     );
-    if (deleteFavoriteFromUser) {
-      res.status(200).json(deleteFavoriteFromUser);
+    const deleteLikersFromOffer = await Offer.findByIdAndUpdate(
+      offerId,
+      { $pull: { likers: userId } },
+      { new: true }
+    );
+    if (deleteFavoriteFromUser && deleteLikersFromOffer) {
+      res.status(200).json("Favori supprimé");
     }
   } catch (error) {
     console.log(error.message);
