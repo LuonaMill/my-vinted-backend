@@ -22,17 +22,27 @@ router.post(
   async (req, res) => {
     // fileUpload() : Premier middleware qui sera appliqué, dans cette route, avant la fonction.
     try {
-      const { title, description, price, condition, city, brand, size, color } =
-        req.body;
+      const {
+        title,
+        description,
+        price,
+        condition,
+        city,
+        brand,
+        size,
+        color,
+        category,
+      } = req.body;
 
       //* Pour uploader une image
-      if (title && price && req.files?.picture) {
+      if (title && price && category && req.files?.picture) {
         //* Je crée ma nouvelle offre sans image
 
         const newOffer = new Offer({
           product_name: title,
           product_description: description,
           product_price: price,
+          product_category: category,
           product_details: [
             { MARQUE: brand },
             { TAILLE: size },
@@ -63,7 +73,7 @@ router.post(
           newOffer.product_pictures.push(result);
         }
 
-        //* CAS #2 : on reçoit un tableau d'image => voir route offer/publisher ci-dessous (en construction)
+        //TODO CAS #2 : on reçoit un tableau d'image => voir route offer/publisher ci-dessous (en construction)
 
         //* Là, on sauvegarde notre nouvelle offre
         await newOffer.populate("owner");
