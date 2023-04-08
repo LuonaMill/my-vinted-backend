@@ -1,8 +1,6 @@
 const express = require("express"); //!
 const router = express.Router(); //!
-const stripe = require("stripe")(
-  "sk_test_51MbOMcBYTQKPCQuG7YFdTW7XO82tG17Ie2LykTkswARonP0mDPskvGw1VRUexP3zgnOCUhBZE1us1BCzvYq6KqSb00Wq2p8Iew"
-);
+const stripe = require("stripe")(process.env.SK_STRIPE);
 const isAuthenticated = require("../middlewares/isAuthenticated"); //!
 
 router.use(express.json());
