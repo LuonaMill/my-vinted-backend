@@ -37,6 +37,12 @@ app.use(offerRoutes);
 app.use(paymentRoutes);
 app.use(favoritesRoutes);
 
+app.get("/", (req, res) => {
+  res
+    .status(200)
+    .json({ message: "Welcome to a replica of Vinted API by LuonaMill 🥳" });
+});
+
 app.all("*", (req, res) => {
   res.status(404).json({ message: "This route doesn't exist" });
 });

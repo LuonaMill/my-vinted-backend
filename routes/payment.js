@@ -5,8 +5,6 @@ const isAuthenticated = require("../middlewares/isAuthenticated"); //!
 
 router.use(express.json());
 
-//! A tester - je ne me souviens pas si elle est fonctionnelle
-
 router.post("/payment", async (req, res) => {
   console.log(req.body);
   try {

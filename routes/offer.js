@@ -82,7 +82,7 @@ router.post(
       } else {
         res
           .status(400)
-          .json({ message: "title, price and picture are required" });
+          .json({ message: "title, price, category and picture are required" });
       }
     } catch (error) {
       res.status(400).json({ message: error.message });
@@ -280,10 +280,6 @@ router.get("/offers", async (req, res) => {
 router.get("/offer/:offerId", async (req, res) => {
   const offerId = req.params.offerId;
   try {
-    // const response = await Offer.findById(offerId).populate({
-    //   path: "owner",
-    //   select: "account favorites",
-    // });
     const response = await Offer.findById(offerId).populate({ path: "owner" });
     res.status(200).json(response);
   } catch (error) {
@@ -291,19 +287,19 @@ router.get("/offer/:offerId", async (req, res) => {
   }
 });
 
-//! ROUTE#4 Je crée une route offer/:userId en GET pour récupérer les offres avec un userId
+// //! ROUTE#4 Je crée une route offer/:userId en GET pour récupérer les offres publiées par un user en particulier
 
-router.get("/offer/:userId", async (req, res) => {
-  const userId = req.params.userId;
-  try {
-    const offersByUserId = await Offer.find({
-      owner: { _id: "64035eb6ebdec33cbb7388e2" },
-    });
+// router.get("/offer/:userId", async (req, res) => {
+//   const userId = req.params.userId;
+//   try {
+//     const offersByUserId = await Offer.find({
+//       owner: { _id: "64035eb6ebdec33cbb7388e2" },
+//     });
 
-    res.status(200).json(offersByUserId);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+//     res.status(200).json(offersByUserId);
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// });
 
 module.exports = router; //! pour exporter mes routes
