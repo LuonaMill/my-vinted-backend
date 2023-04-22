@@ -12,6 +12,7 @@
   <p align="center">
     My very first back-end project from zero, improved along my intensive training @ Le Reacteur Paris
  </p>
+</div>
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -26,24 +27,16 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <li><a href="#usage">Usage</a></li> 
   </ol>
 </details>
 
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
 
 Welcome to this API project !
 I did not know what a backend could look like a few months ago, and I am so happy with this first project where I learned so much about server side, database, routes, and so on.
