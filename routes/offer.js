@@ -239,11 +239,10 @@ router.get("/offers", async (req, res) => {
     }
 
     //* ON S'OCCUPE MAINTENANT DU TRI
-    const sortedMethod = {}; // Je crée un objet vide pour recevoir les infos de tri
+    let sortedMethod = {}; // Je crée un objet vide pour recevoir les infos de tri
 
     if (sort === "price-desc") {
-      //// si le query renvoie sort=price-desc, alors je crée une clé method qui renverra en valeur "asc" (ou "desc" selon le query)
-      sortedMethod = { product_price: -1 };
+      sortedMethod = { product_price: -1 }; //-1 et 1 = "desc" et "asc"
     } else if (sort === "price-asc") {
       sortedMethod = { product_price: 1 };
     }
