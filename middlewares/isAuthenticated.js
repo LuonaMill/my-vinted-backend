@@ -25,7 +25,7 @@ const isAuthenticated = async (req, res, next) => {
     // en la stockant, je vais ainsi pouvoir récupérer user dans les routes où j'appelle isAuthenticated
     req.user = user;
     //* 5) J'ai tout vérifié, j'ai créé ma clé, donc je passe à la suite de ma fonction dans la route où le middleware est appelé
-    return next(); //!
+    next(); //!
   } catch (error) {
     res.status(404).json({ error: error.message });
   }

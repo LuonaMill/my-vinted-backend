@@ -5,7 +5,7 @@ const isAuthenticated = require("../middlewares/isAuthenticated"); //!
 
 router.use(express.json());
 
-router.post("/payment", async (req, res) => {
+router.post("/payment", isAuthenticated, async (req, res) => {
   console.log(req.body);
   try {
     // Je reçois un token du front
